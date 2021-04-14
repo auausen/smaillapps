@@ -4,10 +4,7 @@ import com.codeforsort.jpapagingsorting.model.Employee;
 import com.codeforsort.jpapagingsorting.model.EmployeePage;
 import com.codeforsort.jpapagingsorting.model.EmployeeSearchCriteria;
 import org.apache.catalina.LifecycleState;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -44,6 +41,10 @@ public class EmployeeCriteriaRepository {
         typedQuery.setMaxResults(employeePage.getPageSize());
 
         Pageable pageable = getPageable(employeePage);
+
+        long employeesCount = getEmployeesCount(predicate);
+
+        return new PageImpl<>(typedQuery.getResultList(), pageable, employeesCount);
     }
 
 
@@ -76,6 +77,13 @@ public class EmployeeCriteriaRepository {
     private Pageable getPageable(EmployeePage employeePage) {
         Sort sort = Sort.by(employeePage.getSortDirection(), employeePage.getSortBy());
         return PageRequest.of(employeePage.getPageNumber(), employeePage.getPageSize(), sort);
+    }
+
+    private long getEmployeesCount(Predicate predicate) {
+        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+        Root<Employee> countRoot = countQuery.from(Employee.class);
+        countQuery.select(criteriaBuilder.count(countRoot)).where(predicate);
+        return entityManager.createQuery(countQuery).getSingleResult();
     }
 
 }
