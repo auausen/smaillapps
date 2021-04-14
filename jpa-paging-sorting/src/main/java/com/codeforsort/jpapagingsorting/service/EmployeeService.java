@@ -18,5 +18,11 @@ public class EmployeeService {
         this.employeeCriteriaRepository = employeeCriteriaRepository;
     }
 
-    public Page<Employee>
+    public Page<Employee> getEmployee(){
+
+    }
+    public Employee addEmployee(){
+
+    }
+
 }
